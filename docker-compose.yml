@@ -1,0 +1,41 @@
+version: "3"
+services:
+  client:
+    build: ./client/
+    image: mern_client
+    container_name: mern_frontend
+    networks:
+      - client-net
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./client/nginx/:/etc/nginx/ssl/
+    depends_on:
+      - server
+  server:
+    build: ./server/
+    image: mern_server
+    container_name: mern_backend
+    env_file:
+      - ./server/.env
+    networks:
+      - client-net
+      - db-net
+    depends_on:
+      - db
+  db:
+    image: mongo
+    container_name: mern_db
+    ports:
+      - "27017:27017"
+    restart: always
+    networks:
+      - db-net
+    volumes:
+      - /home/raj/mongo-database-backup:/data/db
+networks:
+  client-net:
+  db-net:
+    driver: bridge
+
